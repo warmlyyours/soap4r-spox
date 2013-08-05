@@ -187,16 +187,22 @@ private
         return false
       end
     end
-    unless child.respond_to?(:each)
-      return false
-    end
-    child.each do |item|
-      if item.is_a?(SOAPElement)
-        soap.add(item)
-      else
-        child_soap = obj2elesoap(item, child_ele)
-        soap.add(child_soap)
+    if child.respond_to?(:each)
+      child.each do |item|
+        if item.is_a?(SOAPElement)
+          soap.add(item)
+        else
+          child_soap = obj2elesoap(item, child_ele)
+          soap.add(child_soap)
+        end
       end
+    elsif child.is_a?String
+    # here we want this code to behave in ruby 1.9.x as it did in ruby 1.8.x
+    # where a child of string does respond to each with the contents of child
+      child_soap = obj2elesoap(child, child_ele)
+      soap.add(child_soap)
+    else
+      return false
     end
     true
   end
